@@ -1,0 +1,25 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"  # Map container's port 3000 to host's port 3000
+    volumes:
+      - ./frontend:/usr/src/app  # Ensure this maps to the correct local folder
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
