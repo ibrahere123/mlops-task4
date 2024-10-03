@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #content {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 80%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .submission {
+            background-color: #e9ecef;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Information Form</h1>
+    <div id="content"></div>
+    <form id="userInfoForm" onsubmit="submitUserInfo(event)">
+        <input type="text" id="nameInput" placeholder="Enter your name" required />
+        <input type="email" id="emailInput" placeholder="Enter your email" required/>
+        <textarea id="messageInput" placeholder="Enter your message" required></textarea>
+        <button type="submit">Submit Information</button>
+    </form>
+
+    <script src="app.js"></script>
+    <script>
+        // Fetch and display submitted information
+        async function fetchSubmissions() {
+            const response = await fetch('/messages'); // Adjust this endpoint if necessary
+            const submissions = await response.json();
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = ''; // Clear previous submissions
+            submissions.forEach((submission, index) => {
+                const submissionDiv = document.createElement('div');
+                submissionDiv.className = 'submission';
+                submissionDiv.innerHTML = `
+                    <strong>Submission ${index + 1}:</strong><br>
+                    Name: ${submission.name}<br>
+                    Email: ${submission.email}<br>
+                    Message: ${submission.message}
+                `;
+                contentDiv.appendChild(submissionDiv);
+            });
+        }
+
+        // Submit user information to the server
+        async function submitUserInfo(event) {
+            event.preventDefault(); // Prevent form submission from refreshing the page
+            const name = document.getElementById('nameInput').value;
+            const email = document.getElementById('emailInput').value;
+            const message = document.getElementById('messageInput').value;
+
+            const response = await fetch('http://localhost:5000/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, message })
+            });
+
+            if (response.ok) {
+                document.getElementById('userInfoForm').reset(); // Clear the form
+                fetchSubmissions(); // Refresh displayed submissions
+            } else {
+                alert('Failed to submit information');
+            }
+        }
+
+        // Initial fetch of submissions on page load
+        window.onload = fetchSubmissions;
+    </script>
+</body>
+</html>
